@@ -9,11 +9,14 @@ from model import Model
 def init_world():
     root = Tk()
 
-    c = Canvas(root, width=600, height=600, bg='white')
+    width = 600
+    height = 600
+
+    c = Canvas(root, width=width, height=height, bg='white')
     c.pack()
 
     p = Point(c, x=10, y=10, width=10)
-    w = World(c, p)
+    w = World(c, p, (width, height))
 
     p.draw()
     w.draw()
@@ -21,18 +24,23 @@ def init_world():
     return w
 
 world = init_world()
-m = Model(2, 6)
+m = Model(4, 4)
 
 state = world.get_init_state()
 
 while True:
-    preds = m.pred(state)
-    action = [np.argmax(preds[:3]), np.argmax[3:]]
-    collision, reward, state = world.make_action(action)
+    action = m.pred(state)
+    if np.random.randint(0, 10) == 10:
+        action = np.random.randint(0, 5)
+    collision, reward, new_state = world.make_action(action)
+    print(action)
+    #print(collision)
     if collision:
+        m.train(state, reward)
         state = world.reset()
         continue
-    m.train(reward)
+    m.train(state, reward)
+    state = new_state
 
-    time.sleep(0.02)
+    #time.sleep(0.02)
 
